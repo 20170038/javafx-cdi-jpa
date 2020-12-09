@@ -1,7 +1,5 @@
 import {loadSchools} from "Rest/school/school-service"
 import {schoolObservable} from "Model/observables"
-import {setCurrentSchool} from "../../model/school/school-action-creator"
-
 
 class SchoolTable extends HTMLTableElement {
     async connectedCallback() {
@@ -12,6 +10,7 @@ class SchoolTable extends HTMLTableElement {
 
         loadSchools()
     }
+    /** remove all existing bodies for re-render */
     clear() {
         while (this.tBodies.length) {
             this.tBodies[0].remove()
@@ -19,9 +18,6 @@ class SchoolTable extends HTMLTableElement {
     }
     render(schools) {
         this.clear()
-        this.classList.add("w3-table-all")
-        this.caption.classList.add("w3-large")
-        this.caption.classList.add("w3-light-blue")
         if (!this.tBodies.length) {
             this.createTBody()
         }
@@ -33,17 +29,13 @@ class SchoolTable extends HTMLTableElement {
         row.insertCell().innerText = school.id
         row.insertCell().innerText = school.name
         row.style = "cursor:pointer"
-        row.onclick = () => this.click(school)
+        row.onclick = () => this.schoolClicked(school)
     }
-    click(school) {
-        console.log("clicked row", school)
-    }
-    schoolClicked(school, e) {
-        console.log("school selected", school.id)
-        setCurrentSchool(school.id)
+    schoolClicked(school) {
+        const event = new CustomEvent("school-selected", {bubbles: true, composed: true, detail: {school}})
+        console.log("raise event", event)
+        this.dispatchEvent(event)
     }
 }
-function clicked(e) {
-    console.log("clicked...")
-}
+
 customElements.define("school-table", SchoolTable, {extends: "table"})
